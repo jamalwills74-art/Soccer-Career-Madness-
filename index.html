@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Poluser Pro Career 26 | Universal Live Matrix</title>
+    <style>
+        :root { --team-color: #00ff88; --away-color: #4444ff; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #0c0f12;
+            color: #ffffff;
+            margin: 0;
+            padding: 10px;
+            display: flex;
+            justify-content: center;
+        }
+        .app-container {
+            width: 100%;
+            max-width: 460px;
+            background: #161b22;
+            border-radius: 24px;
+            padding: 16px;
+            box-shadow: 0 12px 32px rgba(0,0,0,0.7);
+            border: 1px solid #30363d;
+            box-sizing: border-box;
+        }
+        h2, h3 { color: var(--team-color); text-align: center; margin-top: 0; transition: color 0.3s; }
+        .screen { display: none; }
+        .active { display: block; }
+        
+        .hud {
+            background: #0d1117;
+            border-radius: 12px;
+            padding: 10px;
+            margin-bottom: 15px;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            font-size: 12px;
+            border: 1px solid #21262d;
+        }
+        .hud-item { font-weight: bold; color: #8b949e; }
+        .hud-item span { color: #fff; }
+
+        .nav-bar {
+            display: flex;
+            justify-content: space-between;
+            background: #0d1117;
+            padding: 6px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #21262d;
+            gap: 2px;
+        }
+        .nav-btn {
+            background: none;
+            border: none;
+            color: #8b949e;
+            font-weight: bold;
+            font-size: 9px;
+            cursor: pointer;
+            padding: 6px 2px;
+            border-radius: 6px;
+            flex: 1;
+            text-align: center;
+        }
+        .nav-btn.active-tab { background: var(--team-color); color: #000; transition: background 0.3s; }
+
+        label { display: block; margin: 8px 0 4px; font-size: 13px; color: #c9d1d9; }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            background: #21262d;
+            border: 1px solid #30363d;
+            color: #fff;
+            border-radius: 8px;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+        }
+        .btn {
+            display: block;
+            width: 100%;
+            background: var(--team-color);
+            color: #000;
+            border: none;
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            text-align: center;
+        }
+        .btn:disabled {
+            background: #30363d !important;
+            color: #8b949e !important;
+            cursor: not-allowed;
+        }
+
+        .tournament-badge {
+            text-align: center;
+            margin: 5px 0;
+            font-size: 11px;
+            font-weight: bold;
+            padding: 4px;
+            background: #21262d;
+            border-radius: 6px;
+            border: 1px dashed var(--team-color);
+            display: none;
+        }
+
+        .stadium-container {
+            background: #11151d;
+            border: 1px solid #30363d;
+            border-radius: 12px 12px 0 0;
+            padding: 4px;
+            position: relative;
+        }
+        .stadium-name-plate {
+            font-size: 10px;
+            text-align: center;
+            color: #8b949e;
+            font-weight: bold;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stadium-stands {
+            border-radius: 6px 6px 0 0;
+            padding: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            position: relative;
+            min-height: 55px;
+            background: #1c212b;
+            overflow: hidden;
+        }
+        .ultras-banner {
+            font-size: 8px;
+            font-weight: bold;
+            color: #fff;
+            background: #ff3333;
+            padding: 2px 4px;
+            border-radius: 3px;
+            z-index: 5;
+        }
+        .fan-deck {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            align-items: center;
+        }
+        .fan-row {
+            display: flex;
+            gap: 2px;
+            flex-wrap: nowrap;
+        }
+        .fan {
+            width: 7px;
+            height: 11px;
+            background: var(--team-color);
+            border-radius: 2px 2px 0 0;
+            transition: transform 0.1s ease, background-color 0.3s;
+        }
+        .fan.away-fan {
+            background: var(--away-color);
+        }
+        .fan.jumping { animation: jump 0.25s infinite alternate; }
+        .fan.intense-jumping { animation: jump 0.12s infinite alternate; }
+        
+        .flag {
+            width: 8px;
+            height: 6px;
+            background: var(--team-color);
+            border: 1px solid #fff;
+            transform-origin: bottom left;
+            display: none;
+        }
+        .flag.waving { display: block; animation: waveFlag 0.3s infinite alternate; }
+
+        @keyframes jump { 0% { transform: translateY(0); } 100% { transform: translateY(-7px); } }
+        @keyframes waveFlag { 0% { transform: rotate(-15deg) skewX(-10deg); } 100% { transform: rotate(25deg) skewX(15deg); } }
+
+        .beer-spray-layer {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            pointer-events: none;
+            z-index: 10;
+        }
+        .beer-drop {
+            position: absolute;
+            width: 3px; height: 3px;
+            background: #f4c430;
+            border-radius: 50%;
+            animation: explodeBeer 0.8s forwards ease-out;
+        }
+        @keyframes explodeBeer {
+            0% { transform: translateY(40px) scale(1); opacity: 1; }
+            100% { transform: translateY(-30px) translateX(var(--x-m, 10px)); opacity: 0; scale: 0.3; }
+        }
+
+        .pitch-canvas {
+            background: #1e4620;
+            border: 2px solid #fff;
+            border-radius: 0 0 8px 8px;
+            height: 140px;
+            margin: 0 0 10px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        .pitch-line {
+            position: absolute;
+            top: 0; bottom: 0; left: 50%;
+            width: 2px; background: rgba(255,255,255,0.3);
+        }
+        
+        .pitch-logo {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 14px;
+            font-weight: bold;
+            color: rgba(255,255,255,0.15);
+            border: 2px dashed rgba(255,255,255,0.15);
+            padding: 10px;
+            border-radius: 50%;
+            pointer-events: none;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .goal-net {
+            position: absolute;
+            top: 40px;
+            height: 60px;
+            width: 12px;
+            background: repeating-linear-gradient(45deg, rgba(255,255,255,0.4) 0px, rgba(255,255,255,0.4) 2px, transparent 2px, transparent 6px),
+                        repeating-linear-gradient(-45deg, rgba(255,255,255,0.4) 0px, rgba(255,255,255,0.4) 2px, transparent 2px, transparent 6px);
+            border: 1px solid #fff;
+            transition: transform 0.1s ease-out, background-color 0.2s;
+        }
+        .net-left { left: 0; border-left: none; border-radius: 0 4px 4px 0; }
+        .net-right { right: 0; border-right: none; border-radius: 4px 0 0 4px; }
+        
+        .net-ripple-left { animation: rippleLeft 0.4s ease-in-out infinite alternate; background-color: rgba(255, 255, 255, 0.4); }
+        .net-ripple-right { animation: rippleRight 0.4s ease-in-out infinite alternate; background-color: rgba(0, 255, 136, 0.3); }
+
+        @keyframes rippleLeft { 0% { transform: scaleX(1); } 100% { transform: scaleX(1.4) skewY(5deg); } }
+        @keyframes rippleRight { 0% { transform: scaleX(1); } 100% { transform: scaleX(1.4) skewY(-5deg); } }
+
+        .ball-dot {
+            position: absolute; width: 7px; height: 7px;
+            background: #fff; border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: all 0.4s ease-out;
+            box-shadow: 0 0 4px #fff;
+        }
+
+        .decision-panel {
+            background: #21262d;
+            border: 1px solid var(--team-color);
+            border-radius: 12px;
+            padding: 10px;
+            margin: 8px 0;
+            display: none;
+        }
+        .decision-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 6px;
+            margin-top: 8px;
+        }
+        .choice-btn {
+            background: #0d1117;
+            color: #fff;
+            border: 1px solid #30363d;
+            padding: 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            text-align: left;
+            font-size: 12px;
+        }
+        .choice-btn:hover {
+            border-color: var(--team-color);
+            background: rgba(0, 255, 136, 0.05);
+        }
+
+        .match-report-card {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 12px;
+            padding: 12px;
+            margin-top: 10px;
+            font-size: 12px;
+            display: none;
+        }
+        
+        .attribute-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+        .list-card {
+            background: #21262d;
+            padding: 8px;
+            border-radius: 8px;
+            margin-bottom: 6px;
+            border: 1px solid #30363d;
+            font-size: 12px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .news-item {
+            background: #21262d;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            border-left: 4px solid var(--team-color);
+            font-size: 12px;
+        }
+        .news-meta { font-size: 10px; color: #8b949e; margin-top: 4px; }
+        table { width: 100%; border-collapse: collapse; font-size: 11px; }
+        th, td { padding: 5px; text-align: left; border-bottom: 1px solid #30363d; }
+        .highlight-row { background: rgba(0, 255, 136, 0.15); font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <div id="screen-setup" class="screen active">
+        <h2>⚽ Create Pro Player</h2>
+        <label>First & Last Name</label>
+        <input type="text" id="setup-name" value="Poluser Seven">
+
+        <label>Player Position</label>
+        <select id="setup-pos">
+            <option value="ST">ST (Striker)</option>
+            <option value="CF">CF (Center Forward)</option>
+            <option value="LW">LW (Left Winger)</option>
+            <option value="RW">RW (Right Winger)</option>
+            <option value="CAM">CAM (Attacking Mid)</option>
+            <option value="CM">CM (Central Mid)</option>
+            <option value="CDM">CDM (Defensive Mid)</option>
+            <option value="CB">CB (Center Back)</option>
+            <option value="GK">GK (Goalkeeper)</option>
+        </select>
+
+        <label>Select Nationality (Full 125 Nations Matrix)</label>
+        <select id="setup-nation"></select>
+
+        <label>Select League</label>
+        <select id="setup-league">
+            <option value="Premier League">English Premier League</option>
+            <option value="La Liga">Spanish La Liga</option>
+            <option value="Ligue 1">French Ligue 1</option>
+            <option value="MLS">American MLS</option>
+            <option value="Serie A Brasil">Brazilian Serie A</option>
+        </select>
+
+        <p style="font-size:11px; color:#8b949e; text-align:center; margin-top:15px;">⚠️ Pro Mode Active: Your first professional club will be allocated by scouts upon kicking off your career.</p>
+
+        <button class="btn" onclick="startGame()">Kick Off Career</button>
+    </div>
+
+    <div id="game-hub" style="display:none;">
+        <div class="hud">
+            <div class="hud-item">Player: <span id="hud-name">-</span></div>
+            <div class="hud-item">Calendar: <span id="hud-date">-</span></div>
+            <div class="hud-item">Club: <span id="hud-club">-</span></div>
+            <div class="hud-item">Nation: <span id="hud-nation">-</span></div>
+            <div class="hud-item">OVR: <span id="hud-ovr" style="color:#00ff88">60</span></div>
+            <div class="hud-item">Skill Pool: <span id="hud-sp" style="color:#00ff88">0 SP</span></div>
+        </div>
+
+        <div class="nav-bar">
+            <button class="nav-btn active-tab" id="tab-match" onclick="showTab('match')">MATCH</button>
+            <button class="nav-btn" id="tab-news" onclick="showTab('news')">NEWS</button>
+            <button class="nav-btn" id="tab-standings" onclick="showTab('standings')">STANDINGS HUB</button>
+            <button class="nav-btn" id="tab-rosters" onclick="showTab('rosters')">ROSTERS</button>
+            <button class="nav-btn" id="tab-skills" onclick="showTab('skills')">PRO TREE</button>
+        </div>
+
+        <div id="view-match" class="tab-view">
+            <h3 id="match-type-title">Matchday Loading...</h3>
+            <div class="tournament-badge" id="t-badge">🏆 UEFA Champions League</div>
+            
+            <div class="scoreboard">
+                <span id="sb-home">HOME</span>
+                <span id="sb-score" style="color:#00ff88; font-size:16px;">0 - 0</span>
+                <span id="sb-away">AWAY</span>
+                <span id="sb-timer">00'</span>
+            </div>
+            
+            <div class="stadium-container">
+                <div class="stadium-name-plate" id="stadium-title-plate">STADIUM ARENA</div>
+                <div class="stadium-stands" id="stadium-stands-root">
+                    <div class="fan-deck">
+                        <div class="flag" id="flag-l"></div>
+                        <div class="ultras-banner" id="ultras-l">HOME ULTRAS</div>
+                        <div class="fan-row" id="home-fans-root"></div>
+                    </div>
+                    <div class="beer-spray-layer" id="beer-spray-root"></div>
+                    <div class="fan-deck">
+                        <div class="ultras-banner" id="ultras-r" style="background:#4444ff;">AWAY CREW</div>
+                        <div class="fan-row" id="away-fans-root"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pitch-canvas" id="pitch">
+                <div class="pitch-logo" id="center-pitch-logo">CLUB</div>
+                <div class="goal-net net-left" id="net-l"></div>
+                <div class="pitch-line"></div>
+                <div class="goal-net net-right" id="net-r"></div>
+                <div class="ball-dot" id="v-ball" style="left:50%; top:50%;"></div>
+            </div>
+
+            <div class="decision-panel" id="live-decision-box">
+                <strong style="font-size:12px; color:var(--team-color);" id="decision-prompt">The ball breaks to you in the final third! What do you do?</strong>
+                <div class="decision-grid" id="decision-choices-root"></div>
+            </div>
+            
+            <div id="match-ticker" style="font-style: italic; min-height: 25px; text-align: center; color: #8b949e; font-size: 11px;">Ready for kick off.</div>
+            
+            <div class="match-report-card" id="match-report">
+                <h4 style="margin: 0 0 5px 0; color:#00ff88;">📊 Match Rating Performance</h4>
+                <div>Your Match Rating: <span id="rep-rating" style="font-weight:bold; color:#fff;">-</span></div>
+                <div>Skill Points Gained: <span id="rep-sp" style="font-weight:bold; color:#00ff88;">-</span></div>
+            </div>
+
+            <button class="btn" id="play-match-btn" onclick="runMatchEngine()">Sim Matchday</button>
+        </div>
+
+        <div id="view-news" class="tab-view" style="display:none;">
+            <h3>📰 Feed & Live Transfers Matrix</h3>
+            <div id="news-feed-container" style="overflow-y: auto; max-height: 320px; padding-right: 4px;"></div>
+        </div>
+
+        <div id="view-standings" class="tab-view" style="display:none;">
+            <h3>📊 Live Tournament Standings Hub</h3>
+            <label>Select Competition View Matrix</label>
+            <select id="standings-board-filter" onchange="renderStandingsHub()"></select>
+            <div style="overflow-y: auto; max-height: 280px;">
+                <table>
+                    <thead>
+                        <tr><th>Pos</th><th>Team</th><th>P</th><th>W</th><th>D</th><th>L</th><th>Pts</th></tr>
+                    </thead>
+                    <tbody id="standings-body"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="view-rosters" class="tab-view" style="display:none;">
+            <h3>Rosters & Live Player Stats</h3>
+            <select id="roster-select-team" onchange="renderRosterView()"></select>
+            <div style="overflow-y: auto; max-height: 240px;">
+                <table>
+                    <thead>
+                        <tr><th>Name</th><th>Pos</th><th>OVR</th><th>APP</th><th>G</th></tr>
+                    </thead>
+                    <tbody id="roster-body"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="view-skills" class="tab-view" style="display:none;">
+            <h3>Upgrade Attribute Tree</h3>
+            <div class="attribute-grid" id="skills-grid"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const nationalDatabase = [
+        {name:"Argentina", rat:89}, {name:"France", rat:89}, {name:"Spain", rat:88}, {name:"England", rat:88}, {name:"Brazil", rat:87},
+        {name:"Portugal", rat:86}, {name:"Netherlands", rat:86}, {name:"Belgium", rat:85}, {name:"Italy", rat:85}, {name:"Germany", rat:86},
+        {name:"Croatia", rat:84}, {name:"Morocco", rat:83}, {name:"Colombia", rat:83}, {name:"Uruguay", rat:84}, {name:"Mexico", rat:80},
+        {name:"USA", rat:80}, {name:"Japan", rat:81}, {name:"Senegal", rat:79}, {name:"Switzerland", rat:80}, {name:"Iran", rat:75},
+        {name:"Denmark", rat:81}, {name:"Austria", rat:80}, {name:"Ukraine", rat:79}, {name:"Turkey", rat:80}, {name:"Sweden", rat:79},
+        {name:"Norway", rat:81}, {name:"Poland", rat:78}, {name:"Serbia", rat:79}, {name:"Scotland", rat:77}, {name:"Wales", rat:76},
+        {name:"Hungary", rat:78}, {name:"Romania", rat:75}, {name:"Czech Republic", rat:77}, {name:"Slovakia", rat:75}, {name:"Slovenia", rat:76},
+        {name:"Chile", rat:76}, {name:"Ecuador", rat:79}, {name:"Peru", rat:75}, {name:"Paraguay", rat:75}, {name:"Venezuela", rat:76},
+        {name:"Canada", rat:77}, {name:"Costa Rica", rat:73}, {name:"Jamaica", rat:74}, {name:"Panama", rat:73}, {name:"Honduras", rat:71},
+        {name:"South Korea", rat:79}, {name:"Australia", rat:76}, {name:"Saudi Arabia", rat:74}, {name:"Qatar", rat:73}, {name:"UAE", rat:71},
+        {name:"Egypt", rat:78}, {name:"Nigeria", rat:79}, {name:"Algeria", rat:77}, {name:"Tunisia", rat:75}, {name:"Ivory Coast", rat:79},
+        {name:"Cameroon", rat:76}, {name:"Ghana", rat:76}, {name:"Mali", rat:76}, {name:"South Africa", rat:74}, {name:"Burkina Faso", rat:74},
+        {name:"Greece", rat:76}, {name:"Finland", rat:73}, {name:"Republic of Ireland", rat:74}, {name:"Northern Ireland", rat:71}, {name:"Iceland", rat:73},
+        {name:"Bosnia", rat:74}, {name:"Albania", rat:74}, {name:"Georgia", rat:76}, {name:"North Macedonia", rat:72}, {name:"Montenegro", rat:72},
+        {name:"Bulgaria", rat:71}, {name:"Israel", rat:73}, {name:"Uzbekistan", rat:73}, {name:"China", rat:68}, {name:"Iraq", rat:72},
+        {name:"Jordan", rat:72}, {name:"Oman", rat:70}, {name:"Bahrain", rat:69}, {name:"Syria", rat:68}, {name:"Palestine", rat:67},
+        {name:"Cape Verde", rat:73}, {name:"DR Congo", rat:75}, {name:"Guinea", rat:74}, {name:"Zambia", rat:71}, {name:"Gabon", rat:72},
+        {name:"Angola", rat:72}, {name:"Equatorial Guinea", rat:71}, {name:"Bolivia", rat:70}, {name:"Haiti", rat:69}, {name:"Curaçao", rat:69},
+        {name:"Trinidad & Tobago", rat:66}, {name:"Guatemala", rat:67}, {name:"El Salvador", rat:67}, {name:"New Zealand", rat:70}, {name:"Fiji", rat:60},
+        {name:"Solomon Islands", rat:60}, {name:"Estonia", rat:65}, {name:"Latvia", rat:65}, {name:"Lithuania", rat:65}, {name:"Armenia", rat:70},
+        {name:"Azerbaijan", rat:67}, {name:"Kazakhstan", rat:69}, {name:"Moldova", rat:64}, {name:"Cyprus", rat:66}, {name:"Malta", rat:61},
+        {name:"Luxembourg", rat:69}, {name:"Faroe Islands", rat:62}, {name:"Liechtenstein", rat:58}, {name:"San Marino", rat:50}, {name:"Andorra", rat:59},
+        {name:"Madagascar", rat:68}, {name:"Mauritania", rat:69}, {name:"Namibia", rat:66}, {name:"Benin", rat:68}, {name:"Uganda", rat:66},
+        {name:"Kenya", rat:65}, {name:"Zimbabwe", rat:67}, {name:"Togo", rat:66}, {name:"Libya", rat:66}, {name:"Sudan", rat:64}
+    ];
+
+    const database = {
+        "Premier League": [
+            {name:"Man City", baseRat:92, stadium:"Etihad Stadium"}, {name:"Arsenal", baseRat:91, stadium:"Emirates Stadium"}, {name:"Liverpool", baseRat:89, stadium:"Anfield"}, {name:"Man United", baseRat:84, stadium:"Old Trafford"},
+            {name:"Aston Villa", baseRat:83, stadium:"Villa Park"}, {name:"Chelsea", baseRat:83, stadium:"Stamford Bridge"}, {name:"Newcastle", baseRat:81, stadium:"St James' Park"}, {name:"Tottenham", baseRat:81, stadium:"Tottenham Hotspur Stadium"},
+            {name:"Brighton", baseRat:80, stadium:"Amex Stadium"}, {name:"West Ham", baseRat:78, stadium:"London Stadium"}, {name:"Fulham", baseRat:78, stadium:"Craven Cottage"}, {name:"Crystal Palace", baseRat:77, stadium:"Selhurst Park"},
+            {name:"Brentford", baseRat:77, stadium:"Gtech Community Stadium"}, {name:"Bournemouth", baseRat:77, stadium:"Vitality Stadium"}, {name:"Everton", baseRat:76, stadium:"Goodison Park"}, {name:"Wolves", baseRat:76, stadium:"Molineux Stadium"},
+            {name:"Nottingham Forest", baseRat:76, stadium:"The City Ground"}, {name:"Leicester City", baseRat:75, stadium:"King Power Stadium"}, {name:"Ipswich Town", baseRat:74, stadium:"Portman Road"}, {name:"Southampton", baseRat:74, stadium:"St Mary's Stadium"}
+        ],
+        "La Liga": [
+            {name:"Barcelona", baseRat:93, stadium:"Spotify Camp Nou"}, {name:"Real Madrid", baseRat:92, stadium:"Santiago Bernabéu"}, {name:"Villarreal", baseRat:84, stadium:"Estadio de la Cerámica"}, {name:"Atletico Madrid", baseRat:84, stadium:"Riyadh Air Metropolitano"},
+            {name:"Real Betis", baseRat:81, stadium:"Benito Villamarín"}, {name:"Athletic Bilbao", baseRat:80, stadium:"San Mamés"}, {name:"Real Sociedad", baseRat:80, stadium:"Anoeta Stadium"}, {name:"Sevilla", baseRat:78, stadium:"Ramón Sánchez Pizjuán"},
+            {name:"Girona", baseRat:82, stadium:"Montilivi"}, {name:"Valencia", baseRat:77, stadium:"Mestalla"}, {name:"Celta Vigo", baseRat:76, stadium:"Balaídos"}, {name:"Osasuna", baseRat:76, stadium:"El Sadar"},
+            {name:"Getafe", baseRat:75, stadium:"Coliseum Alfonso Pérez"}, {name:"Rayo Vallecano", baseRat:75, stadium:"Vallecas"}, {name:"Mallorca", baseRat:75, stadium:"Son Moix"}, {name:"Deportivo Alaves", baseRat:74, stadium:"Mendizorrotza"},
+            {name:"Leganes", baseRat:73, stadium:"Butarque"}, {name:"Real Valladolid", baseRat:73, stadium:"José Zorrilla"}, {name:"Espanyol", baseRat:74, stadium:"Stage Front Stadium"}, {name:"Las Palmas", baseRat:74, stadium:"Estadio Gran Canaria"}
+        ],
+        "Ligue 1": [
+            {name:"PSG", baseRat:89, stadium:"Parc des Princes"}, {name:"Marseille", baseRat:82, stadium:"Orange Vélodrome"}, {name:"Monaco", baseRat:82, stadium:"Stade Louis II"}, {name:"Lyon", baseRat:80, stadium:"Groupama Stadium"}, {name:"Lille", baseRat:80, stadium:"Decathlon Arena"},
+            {name:"Lens", baseRat:79, stadium:"Stade Bollaert-Delelis"}, {name:"Rennes", baseRat:78, stadium:"Roazhon Park"}, {name:"Nice", baseRat:79, stadium:"Allianz Riviera"}, {name:"Reims", baseRat:76, stadium:"Stade Auguste-Delaune"}, {name:"Strasbourg", baseRat:75, stadium:"Stade de la Meinau"},
+            {name:"Montpellier", baseRat:74, stadium:"Stade de la Mosson"}, {name:"Toulouse", baseRat:75, stadium:"Stadium de Toulouse"}, {name:"Nantes", baseRat:74, stadium:"Stade de la Beaujoire"}, {name:"Brest", baseRat:77, stadium:"Stade Francis-Le Blé"},
+            {name:"Le Havre", baseRat:72, stadium:"Stade Océane"}, {name:"Auxerre", baseRat:72, stadium:"Stade de l'Abbé-Deschamps"}, {name:"Angers", baseRat:71, stadium:"Stade Raymond Kopa"}, {name:"Saint-Etienne", baseRat:72, stadium:"Stade Geoffroy-Guichard"}
+        ],
+        "MLS": [
+            {name:"Inter Miami", baseRat:81, stadium:"Chase Stadium"}, {name:"LAFC", baseRat:77, stadium:"BMO Stadium"}, {name:"LA Galaxy", baseRat:76, stadium:"Dignity Health Sports Park"}, {name:"Columbus Crew", baseRat:77, stadium:"Lower.com Field"},
+            {name:"FC Cincinnati", baseRat:75, stadium:"TQL Stadium"}, {name:"Seattle Sounders", baseRat:74, stadium:"Lumen Field"}, {name:"New York City FC", baseRat:74, stadium:"Yankee Stadium"}, {name:"Atlanta United", baseRat:74, stadium:"Mercedes-Benz Stadium"},
+            {name:"New York Red Bulls", baseRat:74, stadium:"Red Bull Arena"}, {name:"Orlando City", baseRat:74, stadium:"Inter&Co Stadium"}, {name:"Philadelphia Union", baseRat:74, stadium:"Subaru Park"}, {name:"Houston Dynamo", baseRat:73, stadium:"Shell Energy Stadium"}
+        ],
+        "Serie A Brasil": [
+            {name:"Flamengo", baseRat:81, stadium:"Maracanã"}, {name:"Palmeiras", baseRat:80, stadium:"Allianz Parque"}, {name:"Botafogo", baseRat:79, stadium:"Estádio Nilton Santos"}, {name:"Atletico Mineiro", baseRat:78, stadium:"Arena MRV"},
+            {name:"Sao Paulo", baseRat:77, stadium:"Morumbis"}, {name:"Fluminense", baseRat:77, stadium:"Maracanã Stadium"}, {name:"Gremio", baseRat:76, stadium:"Arena do Grêmio"}, {name:"Internacional", baseRat:77, stadium:"Estádio Beira-Rio"},
+            {name:"Athletico Paranaense", baseRat:75, stadium:"Ligga Arena"}, {name:"Bahia", baseRat:75, stadium:"Arena Fonte Nova"}, {name:"Cruzeiro", baseRat:75, stadium:"Mineirão"}, {name:"Corinthians", baseRat:75, stadium:"Neo Química Arena"}
+        ]
+    };
+
+    const teamThemes = { "Man City": "#46a7e0", "Arsenal": "#ef0107", "Liverpool": "#c8102e", "Real Madrid": "#d1d1d1", "Barcelona": "#004d98", "PSG": "#004170", "Man United": "#da020e", "Chelsea": "#034694" };
+    const approxFirst = ["J.", "M.", "A.", "L.", "D.", "S.", "K."];
+    const approxLast = ["Smith", "Jones", "Muller", "Fernandez", "Silva", "Gomez"];
+    const completePositions = ["ST", "LW", "RW", "CAM", "CM", "CDM", "CB", "GK"];
+
+    // Prompt scenario sentence pools for unique generations
+    const actionVerbs = ["intercepts a loose ball", "dribbles past a sliding defender", "receives a looping cross", "controls a deflection on the edge of the area", "breaks clean past the offside trap"];
+    const optionsA = ["Slip a threaded disguise pass inside the 6-yard area", "Work a delicate low square ball into open space", "Backheel a visual option into the arriving midfielder"];
+    const optionsB = ["Unleash a thunderous curler aimed inside the far corner", "Drive a powerful low grass-cutter through the keeper's legs", "Chip a delicate lob over the rushing goalkeeper"];
+    const optionsC = ["Launch horizontally into a stunning acrobatic bicycle kick!", "Execute a brilliant rainbow flick and volley it instantly!", "Attempt a reckless diving header tracking the low cross!"];
+
+    let pName = "", pPos = "", club = "", nation = "", currentLeague = "Premier League";
+    let skillPoints = 5, currentStep = 0, schedule = [], currentYear = 2026;
+    let rostersMemory = {}; 
+    let matchInProgress = false, newsItems = [];
+    let pendingEngineResume = null;
+    let stoppageTicksRemaining = 0;
+
+    let attributes = {
+        PAC:{name:"Pace",val:60}, SHO:{name:"Shooting",val:60}, FIN:{name:"Finishing",val:60},
+        SPS:{name:"Short Passing",val:60}, LPS:{name:"Long Passing",val:60}, VIS:{name:"Vision",val:60},
+        DRI:{name:"Dribbling",val:60}, AGI:{name:"Agility",val:60}, DEF:{name:"Defending",val:60},
+        INT:{name:"Interceptions",val:60}, PHY:{name:"Physicality",val:60}, STR:{name:"Strength",val:60},
+        STA:{name:"Stamina",val:60}, COM:{name:"Composure",val:60}
+    };
+    
+    let globalStandingsData = {
+        "Premier League": [], "La Liga": [], "Ligue 1": [], "MLS": [], "Serie A Brasil": [],
+        "UCL": [], "Euros_Qualifiers": [], "Euros_Finals": [], "WC_Qualifiers": [], "WC_Finals": []
+    };
+
+    // Web Audio Synth Generator for cheering and crowd noise
+    function playProceduralCrowdSound(durationMs = 2000, intensity = 1.0) {
+        try {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            if(!AudioContext) return;
+            const ctx = new AudioContext();
+            
+            // White Noise Generation Layer
+            const bufferSize = ctx.sampleRate * (durationMs / 1000);
+            const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) {
+                data[i] = Math.random() * 2 - 1;
+            }
+            
+            const noiseNode = ctx.createBufferSource();
+            noiseNode.buffer = buffer;
+            
+            // Audio Filtering to mimic stadium acoustics
+            const filter = ctx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(380, ctx.currentTime);
+            filter.frequency.exponentialRampToValueAtTime(180, ctx.currentTime + (durationMs/1000));
+            
+            const gainNode = ctx.createGain();
+            gainNode.gain.setValueAtTime(0.01, ctx.currentTime);
+            gainNode.gain.linearRampToValueAtTime(0.2 * intensity, ctx.currentTime + 0.2);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + (durationMs/1000));
+            
+            noiseNode.connect(filter);
+            filter.connect(gainNode);
+            gainNode.connect(ctx.destination);
+            
+            noiseNode.start();
+        } catch(e) { console.log("Audio contexts pending interaction"); }
+    }
+
+    window.onload = function() {
+        const nSel = document.getElementById('setup-nation');
+        nationalDatabase.sort((a,b) => a.name.localeCompare(b.name));
+        nationalDatabase.forEach(n => nSel.add(new Option(n.name, n.name)));
+        
+        const sHubFilter = document.getElementById('standings-board-filter');
+        const optionsKeys = [
+            {val:"Premier League", label:"English Premier League"}, {val:"La Liga", label:"Spanish La Liga"},
+            {val:"Ligue 1", label:"French Ligue 1"}, {val:"MLS", label:"American MLS"},
+            {val:"Serie A Brasil", label:"Brazilian Serie A"}, {val:"UCL", label:"UEFA Champions League"},
+            {val:"Euros_Qualifiers", label:"UEFA Euro Qualifiers"}, {val:"Euros_Finals", label:"UEFA Euro Championship"},
+            {val:"WC_Qualifiers", label:"FIFA WC Qualifiers Matrix"}, {val:"WC_Finals", label:"FIFA World Cup Tournament"}
+        ];
+        optionsKeys.forEach(o => sHubFilter.add(new Option(o.label, o.val)));
+    };
+
+    function generateTeamRoster(teamName, tierRating) {
+        if (rostersMemory[teamName]) return rostersMemory[teamName];
+        let roster = [];
+        for (let i = 0; i < 11; i++) {
+            let name = `${approxFirst[Math.floor(Math.random() * approxFirst.length)]} ${approxLast[Math.floor(Math.random() * approxLast.length)]}`;
+            roster.push({ name: name, pos: completePositions[i % completePositions.length], ovr: Math.floor(tierRating + (Math.random()*6-3)), app: 0, goals: 0 });
+        }
+        rostersMemory[teamName] = roster; return roster;
+    }
+
+    function addNews(headline, category = "General") {
+        newsItems.unshift({ headline, category, date: schedule[currentStep]?.date || `Season ${currentYear}` });
+        const container = document.getElementById('news-feed-container');
+        if (container) {
+            const block = document.createElement('div');
+            block.className = "news-item";
+            block.innerHTML = `<div><strong>[${category.toUpperCase()}]</strong> ${headline}</div><div class="news-meta">Date: ${schedule[currentStep]?.date || 'Break'}</div>`;
+            container.insertBefore(block, container.firstChild);
+        }
+    }
+
+    function initGlobalTables() {
+        for (let k in globalStandingsData) globalStandingsData[k] = [];
+        for (let lKey in database) {
+            database[lKey].forEach(t => {
+                let rowObj = { name: t.name, played: 0, wins: 0, draws: 0, losses: 0, pts: 0 };
+                globalStandingsData[lKey].push(rowObj);
+                generateTeamRoster(t.name, t.baseRat);
+            });
+        }
+        let clOpponents = ["Real Madrid", "Barcelona", "PSG", "Bayern", "Inter Milan", "Juventus", "AC Milan", "Dortmund", club];
+        clOpponents.forEach(t => globalStandingsData["UCL"].push({ name: t, played: 0, wins: 0, draws: 0, losses: 0, pts: 0 }));
+
+        let euroTeams = [nation, "France", "Spain", "England", "Portugal", "Germany", "Italy", "Netherlands", "Croatia", "Turkey"];
+        euroTeams.forEach(t => {
+            globalStandingsData["Euros_Qualifiers"].push({ name: t, played: 0, wins: 0, draws: 0, losses: 0, pts: 0 });
+            globalStandingsData["Euros_Finals"].push({ name: t, played: 0, wins: 0, draws: 0, losses: 0, pts: 0 });
+        });
+
+        let wcTeams = [nation, "Argentina", "Brazil", "France", "England", "Spain", "Morocco", "USA", "Japan", "Senegal", "Uruguay", "Colombia"];
+        wcTeams.forEach(t => {
+            globalStandingsData["WC_Qualifiers"].push({ name: t, played: 0, wins: 0, draws: 0, losses: 0, pts: 0 });
+            globalStandingsData["WC_Finals"].push({ name: t, played: 0, wins: 0, draws: 0, losses: 0, pts: 0 });
+        });
+    }
+
+    function buildSchedules() {
+        schedule = [];
+        let opponentsPool = database[currentLeague].filter(t => t.name !== club);
+        let clOpponents = ["Real Madrid", "Barcelona", "PSG", "Bayern", "Inter Milan", "Juventus", "AC Milan", "Dortmund"];
+        
+        let isWorldCupYear = (currentYear === 2026 || (currentYear - 2026) % 4 === 0);
+        let isEurosYear = ((currentYear - 2027) % 2 === 0);
+
+        for(let i=1; i<=20; i++) {
+            let oppObj = opponentsPool[(i - 1) % opponentsPool.length];
+            schedule.push({ id: schedule.length+1, type: "Club", name: `League Round ${i}`, opponent: oppObj.name, stadium: oppObj.stadium || "League Arena", date: `Month ${i}, ${currentYear}` });
+            
+            if(i <= 6) {
+                schedule.push({ id: schedule.length+1, type: "UCL", name: `🇪🇺 Champions League - Group Match ${i}`, opponent: clOpponents[i % clOpponents.length], stadium: "UCL Grand Stadium", date: `Midweek ${i}, ${currentYear}` });
+            } else if(i === 10 || i === 12) {
+                schedule.push({ id: schedule.length+1, type: "UCL", name: "🇪🇺 UCL - Round of 16 (Aggregate)", opponent: "UCL Contender", stadium: "European Crucible Arena", date: `Midweek ${i}, ${currentYear}` });
+            } else if(i === 15) {
+                schedule.push({ id: schedule.length+1, type: "UCL", name: "🇪🇺 UCL - Grand Final", opponent: "Finalist Contender", stadium: "UEFA Neutral Masterdome", date: `May Showdown, ${currentYear}` });
+            }
+        }
+
+        if (currentYear === 2026) {
+            for(let i=1; i<=3; i++) {
+                schedule.push({ id: schedule.length+1, type: "WC_Finals", name: `🏆 World Cup 2026 - Group Stage G${i}`, opponent: "World Class Country", stadium: "FIFA World Cup Stadium", date: `Dec ${10+i*4}, 2026`, logo: "🌐 FIFA WORLD CUP 2026" });
+            }
+            for(let i=1; i<=3; i++) {
+                schedule.push({ id: schedule.length+1, type: "WC_Finals", name: `🏆 World Cup 2026 - Knockout Round ${i}`, opponent: "Elite Nation", stadium: "MetLife World Arena", date: `Dec ${22+i*2}, 2026`, logo: "🌐 FIFA WORLD CUP 2026" });
+            }
+        }
+
+        if (isEurosYear) {
+            for(let i=1; i<=3; i++) {
+                schedule.push({ id: schedule.length+1, type: "Euros_Finals", name: `🇪🇺 Euro Tournament - Group Stage Match ${i}`, opponent: "European Contender", stadium: "Euro Showdown Arena", date: `June ${10+i*3}, ${currentYear}`, logo: "⚽ EURO 2024 OFFICIAL" });
+            }
+            for(let i=1; i<=3; i++) {
+                schedule.push({ id: schedule.length+1, type: "Euros_Finals", name: `🇪🇺 Euro Tournament - Knockout Stage Tier ${i}`, opponent: "European Giant", stadium: "Berlin Olympiastadion", date: `July ${2+i*3}, ${currentYear}`, logo: "⚽ EURO 2024 OFFICIAL" });
+            }
+        }
+
+        if (isWorldCupYear && currentYear > 2026) {
+            for(let i=1; i<=3; i++) {
+                schedule.push({ id: schedule.length+1, type: "WC_Finals", name: `🏆 Summer World Cup - Group Stage Match ${i}`, opponent: "Global Challenger", stadium: "FIFA World Bowl", date: `June ${12+i*3}, ${currentYear}`, logo: "🌐 FIFA WORLD CUP 2026" });
+            }
+            for(let i=1; i<=3; i++) {
+                schedule.push({ id: schedule.length+1, type: "WC_Finals", name: `🏆 Summer World Cup - Knockout Finals Round ${i}`, opponent: "Global Superpower", stadium: "Azteca Grand Arena", date: `July ${10+i*3}, ${currentYear}`, logo: "🌐 FIFA WORLD CUP 2026" });
+            }
+        }
+    }
+
+    function startGame() {
+        pName = document.getElementById('setup-name').value;
+        pPos = document.getElementById('setup-pos').value;
+        currentLeague = document.getElementById('setup-league').value;
+        nation = document.getElementById('setup-nation').value;
+        
+        let leaguePool = database[currentLeague];
+        let randomClubObj = leaguePool[Math.floor(Math.random() * leaguePool.length)];
+        club = randomClubObj.name;
+
+        if(teamThemes[club]) document.documentElement.style.setProperty('--team-color', teamThemes[club]);
+
+        initGlobalTables();
+        buildSchedules();
+        
+        document.getElementById('screen-setup').style.display = 'none';
+        document.getElementById('game-hub').style.display = 'block';
+        buildSkillTreeUI();
+        updateUI();
+
+        alert(`📄 SCOUTING INTEL: You have been signed by ${club} to kickstart your professional career tree matrix!`);
+    }
+
+    function renderStandingsHub() {
+        let boardKey = document.getElementById('standings-board-filter').value;
+        let tbody = document.getElementById('standings-body'); if(!tbody) return;
+        tbody.innerHTML = "";
+
+        let dataArr = globalStandingsData[boardKey] || [];
+        dataArr.sort((a,b) => b.pts - a.pts);
+
+        dataArr.forEach((t, i) => {
+            let isCurrentRow = (t.name === club || t.name === nation);
+            tbody.innerHTML += `<tr class="${isCurrentRow ? 'highlight-row':''}"><td>${i+1}</td><td>${t.name}</td><td>${t.played}</td><td>${t.wins}</td><td>${t.draws}</td><td>${t.losses}</td><td><strong>${t.pts}</strong></td></tr>`;
+        });
+    }
+
+    function renderRosterView() {
+        const teamSelected = document.getElementById('roster-select-team').value;
+        const body = document.getElementById('roster-body'); if(!body) return;
+        body.innerHTML = "";
+        let playersList = rostersMemory[teamSelected] ? [...rostersMemory[teamSelected]] : [];
+        playersList.forEach(p => {
+            body.innerHTML += `<tr><td>${p.name}</td><td>${p.pos}</td><td><strong>${p.ovr}</strong></td><td>${p.app}</td><td>${p.goals}</td></tr>`;
+        });
+    }
+
+    function buildSkillTreeUI() {
+        const grid = document.getElementById('skills-grid'); grid.innerHTML = "";
+        for (let key in attributes) {
+            let item = attributes[key];
+            grid.innerHTML += `<div class="list-card"><div><strong>${item.name}: ${item.val}</strong></div>
+            <button class="btn" style="padding:4px; margin-top:5px; font-size:11px;" onclick="upgradeStat('${key}')">Upgrade</button></div>`;
+        }
+    }
+
+    function upgradeStat(key) {
+        if (skillPoints < 1) return;
+        skillPoints--; attributes[key].val += 2;
+        buildSkillTreeUI(); updateUI();
+    }
+
+    function getCalculatedOVR() {
+        let sum = 0, count = 0; for(let k in attributes) { sum += attributes[k].val; count++; }
+        return Math.round(sum / count);
+    }
+
+    function updateUI() {
+        document.getElementById('hud-name').innerText = pName + ` (${pPos})`;
+        document.getElementById('hud-club').innerText = club;
+        document.getElementById('hud-nation').innerText = nation;
+        document.getElementById('hud-sp').innerText = skillPoints + " SP";
+        document.getElementById('hud-ovr').innerText = getCalculatedOVR();
+        
+        let currentMatch = schedule[currentStep] || { name: "Season Complete", date: "End" };
+        document.getElementById('hud-date').innerText = currentMatch.date;
+        document.getElementById('match-type-title').innerText = currentMatch.name + (currentMatch.opponent ? ` vs ${currentMatch.opponent}` : "");
+
+        document.getElementById('center-pitch-logo').innerText = (currentMatch.type !== "Club" && currentMatch.type !== "UCL") ? nation.substring(0,4) : club.substring(0,4);
+
+        if (currentMatch.type === "Club") {
+            let matchedHomeClub = database[currentLeague].find(t => t.name === club);
+            document.getElementById('stadium-title-plate').innerText = matchedHomeClub ? matchedHomeClub.stadium : "Club Stadium Arena";
+        } else {
+            document.getElementById('stadium-title-plate').innerText = currentMatch.stadium || "International Ground Arena";
+        }
+
+        let hFansRoot = document.getElementById('home-fans-root');
+        let aFansRoot = document.getElementById('away-fans-root');
+        hFansRoot.innerHTML = ""; aFansRoot.innerHTML = "";
+
+        for(let f=0; f<25; f++) {
+            let fanDiv = document.createElement('div');
+            fanDiv.className = "fan home-individual-fan";
+            hFansRoot.appendChild(fanDiv);
+        }
+        for(let f=0; f<4; f++) {
+            let fanDiv = document.createElement('div');
+            fanDiv.className = "fan away-fan away-individual-fan";
+            aFansRoot.appendChild(fanDiv);
+        }
+
+        document.getElementById('ultras-l').innerText = `${club.toUpperCase()} ULTRAS SCARF SECTOR`;
+        if (currentMatch.opponent) document.getElementById('ultras-r').innerText = `${currentMatch.opponent.toUpperCase()} AWAY HIGH DECK`;
+
+        let badge = document.getElementById('t-badge');
+        if (currentMatch.logo) { badge.innerText = currentMatch.logo; badge.style.display = "block"; }
+        else if (currentMatch.type === "UCL") { badge.innerText = "🇪🇺 UEFA CHAMPIONS LEAGUE WEEKLY"; badge.style.display = "block"; }
+        else { badge.style.display = "none"; }
+
+        renderStandingsHub();
+        
+        const sel = document.getElementById('roster-select-team');
+        if(sel && sel.innerHTML === "") {
+            sel.add(new Option(club, club));
+            database[currentLeague].forEach(t => sel.add(new Option(t.name, t.name)));
+        }
+    }
+
+    function showTab(tabName) {
+        document.querySelectorAll('.tab-view').forEach(v => v.style.display = 'none');
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active-tab'));
+        document.getElementById('view-' + tabName).style.display = 'block';
+        document.getElementById('tab-' + tabName).classList.add('active-tab');
+        if(tabName === 'standings') renderStandingsHub();
+    }
+
+    function setStadiumAnimations(celebrationMode, isHomeScored, currentMin) {
+        let homeFans = document.querySelectorAll('.home-individual-fan');
+        let awayFans = document.querySelectorAll('.away-individual-fan');
+        let flagL = document.getElementById('flag-l');
+
+        if(celebrationMode === "score") {
+            if(isHomeScored) {
+                flagL.classList.add('waving');
+                homeFans.forEach(f => f.className = (currentMin >= 85) ? "fan home-individual-fan intense-jumping" : "fan home-individual-fan jumping");
+                if(currentMin >= 85) triggerBeerShowerExplosion();
+            } else {
+                awayFans.forEach(f => f.className = "fan away-fan away-individual-fan jumping");
+            }
+        } else {
+            flagL.classList.remove('waving');
+            homeFans.forEach(f => f.className = "fan home-individual-fan");
+            awayFans.forEach(f => f.className = "fan away-fan away-individual-fan");
+        }
+    }
+
+    function triggerBeerShowerExplosion() {
+        let root = document.getElementById('beer-spray-root'); if(!root) return;
+        root.innerHTML = "";
+        for(let i=0; i<30; i++) {
+            let drop = document.createElement('div');
+            drop.className = "beer-drop";
+            drop.style.left = Math.floor(Math.random() * 80) + 10 + "%";
+            drop.style.setProperty('--x-m', (Math.random() * 60 - 30) + "px");
+            root.appendChild(drop);
+        }
+        setTimeout(() => root.innerHTML = "", 1200);
+    }
+
+    function triggerNetAnimation(isRightSide) {
+        const net = document.getElementById(isRightSide ? 'net-r' : 'net-l');
+        if (net) {
+            net.classList.add(isRightSide ? 'net-ripple-right' : 'net-ripple-left');
+            setTimeout(() => net.className = `goal-net ${isRightSide ? 'net-right':'net-left'}`, 1000);
+        }
+    }
+
+    function queueDecision(callbackResume) {
+        pendingEngineResume = callbackResume;
+        document.getElementById('live-decision-box').style.display = "block";
+        const root = document.getElementById('decision-choices-root');
+        root.innerHTML = "";
+
+        // Dynamically build scenario text elements so every generation is unique
+        let randomVerb = actionVerbs[Math.floor(Math.random() * actionVerbs.length)];
+        let optA_Text = optionsA[Math.floor(Math.random() * optionsA.length)];
+        let optB_Text = optionsB[Math.floor(Math.random() * optionsB.length)];
+        let optC_Text = optionsC[Math.floor(Math.random() * optionsC.length)];
+
+        document.getElementById('decision-prompt').innerText = `${pName} ${randomVerb}! Choose your play:`;
+
+        const options = [
+            { text: `Option A: ${optA_Text}`, scoreMod: 1, textOutcome: "Great vision! The play shifts downfield smoothly." },
+            { text: `Option B: ${optB_Text}`, scoreMod: 2, textOutcome: "Stunning placement! You strike it perfectly!" },
+            { text: `Option C: ${optC_Text}`, scoreMod: 3, textOutcome: "SPECTACULAR! You execute the rare trick play perfectly! The crowd goes wild!" }
+        ];
+
+        options.forEach(opt => {
+            let b = document.createElement('button');
+            b.className = "choice-btn";
+            b.innerText = opt.text;
+            b.onclick = () => selectDecisionOutcome(opt);
+            root.appendChild(b);
+        });
+    }
+
+    function selectDecisionOutcome(option) {
+        document.getElementById('live-decision-box').style.display = "none";
+        document.getElementById('match-ticker').innerText = option.textOutcome;
+        
+        let didScore = (Math.random() * option.scoreMod) > 0.4;
+        if(pendingEngineResume) {
+            pendingEngineResume(didScore);
+            pendingEngineResume = null;
+        }
+    }
+
+    function runMatchEngine() {
+        if(matchInProgress) return;
+        if(currentStep >= schedule.length) { 
+            currentYear++; alert(`🎉 Season Transitioning directly into year: ${currentYear}.`); 
+            currentStep = 0; buildSchedules(); updateUI(); return;
+        }
+
+        document.getElementById('match-report').style.display = 'none';
+        const matchItem = schedule[currentStep];
+        const ball = document.getElementById('v-ball');
+        const ticker = document.getElementById('match-ticker');
+        const btn = document.getElementById('play-match-btn');
+        
+        matchInProgress = true; btn.disabled = true;
+        setStadiumAnimations("idle", false, 0);
+
+        let mScore = 0, aScore = 0, min = 0;
+        stoppageTicksRemaining = 0;
+        
+        // Lengthened match update intervals to create a dramatic, slow-burn narrative flow
+        let intv = setInterval(() => {
+            if(pendingEngineResume !== null) return; 
+
+            // Freeze clock to run celebration stoppage if a goal recently occurred
+            if (stoppageTicksRemaining > 0) {
+                stoppageTicksRemaining--;
+                if(ball) {
+                    ball.style.left = "50%"; ball.style.top = "50%";
+                }
+                return;
+            }
+
+            min += 2; // Increments by 2 instead of 5 for a longer match flow
+            document.getElementById('sb-timer').innerText = min + "'";
+            document.getElementById('sb-score').innerText = `${mScore} - ${aScore}`;
+            if(ball) { 
+                ball.style.left = Math.floor(Math.random()*50 + 25) + "%"; 
+                ball.style.top = Math.floor(Math.random()*60 + 20) + "%"; 
+            }
+
+            if(min === 34 || min === 72) {
+                queueDecision((userScoredResult) => {
+                    if(userScoredResult) {
+                        mScore++;
+                        triggerNetAnimation(true);
+                        setStadiumAnimations("score", true, min);
+                        playProceduralCrowdSound(2500, 1.2);
+                        stoppageTicksRemaining = 4; // Stoppage freeze
+                        setTimeout(() => setStadiumAnimations("idle", false, min), 3000);
+                    }
+                });
+                return;
+            }
+
+            if(Math.random() < 0.05) {
+                if(Math.random() > 0.55) { 
+                    mScore++; 
+                    triggerNetAnimation(true); 
+                    ticker.innerText = `${min}' - Squad claims space and slots it home!`;
+                    setStadiumAnimations("score", true, min);
+                    playProceduralCrowdSound(2200, 1.0);
+                    stoppageTicksRemaining = 4; // Stoppage freeze
+                    setTimeout(() => setStadiumAnimations("idle", false, min), 2000);
+                }
+                else { 
+                    aScore++; 
+                    triggerNetAnimation(false); 
+                    ticker.innerText = `${min}' - Conceded a critical finish.`; 
+                    setStadiumAnimations("score", false, min);
+                    playProceduralCrowdSound(1200, 0.5);
+                    stoppageTicksRemaining = 4; // Stoppage freeze
+                    setTimeout(() => setStadiumAnimations("idle", false, min), 2000);
+                }
+            }
+
+            if(min >= 90) {
+                clearInterval(intv); matchInProgress = false;
+                btn.disabled = false;
+                document.getElementById('sb-timer').innerText = "FT";
+                
+                skillPoints += 2;
+                document.getElementById('rep-rating').innerText = "8.4 / 10";
+                document.getElementById('rep-sp').innerText = "+2 Skill Points";
+                document.getElementById('match-report').style.display = 'block';
+
+                addNews(`Score: ${mScore} - ${aScore} (${matchItem.name})`, "Scores");
+                
+                let currentTableKey = matchItem.type;
+                if (matchItem.type === "Club") { currentTableKey = currentLeague; }
+
+                let targetDb = globalStandingsData[currentTableKey];
+                if(targetDb) {
+                    let homeTeamRow = targetDb.find(t => t.name === (matchItem.type === "Club" ? club : nation));
+                    if(homeTeamRow) {
+                        homeTeamRow.played++;
+                        if(mScore > aScore) { homeTeamRow.wins++; homeTeamRow.pts += 3; }
+                        else if(mScore === aScore) { homeTeamRow.draws++; homeTeamRow.pts += 1; }
+                        else { homeTeamRow.losses++; }
+                    }
+                }
+
+                currentStep++; updateUI();
+            }
+        }, 350);
+    }
+</script>
+</body>
+</html>
